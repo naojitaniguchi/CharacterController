@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] string jumpTriggerParamName = "Jump";
     [SerializeField] string velocityParamName = "Velocity";
+    [SerializeField] float himaTime = 3.0f;
 
     private Transform _transform;
     private CharacterController _characterController;
@@ -30,10 +31,14 @@ public class PlayerController : MonoBehaviour
     private float _turnVelocity;
     private bool _isGroundedPrev;
     Animator animator;
+    float himaTimeCount = 0;
 
     /// <summary>
     /// 移動Action(PlayerInput側から呼ばれる)
     /// </summary>
+    /// 
+
+    // 入力が無い時に暇モーションを再生するようにする
     public void OnMove(InputAction.CallbackContext context)
     {
         // 入力値を保持しておく
@@ -62,6 +67,11 @@ public class PlayerController : MonoBehaviour
         _transform = transform;
         _characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        himaTimeCount = 0;
     }
 
     private void Update()
@@ -125,6 +135,17 @@ public class PlayerController : MonoBehaviour
             _transform.rotation = Quaternion.Euler(0, angleY, 0);
 
             // animator
+            himaTimeCount = 0;
+        }
+        else
+        {
+            himaTimeCount += Time.deltaTime;
+            if ( himaTimeCount > himaTime)
+            {
+                // 暇アニメーション発動
+                gameObject.GetComponent<Animator>().SetTrigger("Hima");
+                himaTimeCount = 0.0f;
+            }
         }
     }
 }
